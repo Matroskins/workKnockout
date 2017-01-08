@@ -1,0 +1,29 @@
+.input-group {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-inline {
+    margin-bottom: 15px;
+}
+
+.row-special {
+    margin-left: 0px;
+}
+
+#chartLegend {
+    border: 4px solid #475770;
+    border-radius: 20px;
+    padding: 15px;
+}
+
+#input-rows {
+    min-height: 100px;
+    max-height: 200px;
+}
+
+#delete-row {
+    background-color: red;
+    border-radius: 60%;
+    min-height: 70%;
+}

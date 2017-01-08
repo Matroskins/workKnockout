@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        .clonable-inner {
+            height: 50px;
+        }
+        
+        path {
+            stroke: #fff;
+        }
+        
+        path:hover {
+            opacity: 0.9;
+        }
+        
+        rect:hover {
+            fill: blue;
+        }
+        
+        .axis {
+            font: 10px sans-serif;
+        }
+        
+        .legend tr {
+            border-bottom: 1px solid grey;
+        }
+        
+        .legend tr:first-child {
+            border-top: 1px solid grey;
+        }
+        
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+        
+        .x.axis path {
+            display: none;
+        }
+        
+        .legend {
+            margin-bottom: 76px;
+            display: inline-block;
+            border-collapse: collapse;
+            border-spacing: 0px;
+        }
+        
+        .legend td {
+            padding: 4px 5px;
+            vertical-align: bottom;
+        }
+        
+        .legendFreq,
+        .legendPerc {
+            align: right;
+            width: 50px;
+        }
+    </style>
+
+    <!-- Website CSS style -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Website Font style -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Passion+One' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Oxygen' rel='stylesheet' type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="./lib/underscore-min.js"></script>
+
+    <title>Admin</title>
+</head>
+
+<body>
+    <div class="container-fluid col-lg-5 ">
+        <div class="row">
+            <div class="row row-special">
+                <h2>Виталий, введите свои расходы в форму! </h2>
+            </div>
+
+            <!-- <form class="" method="post" action="#"> -->
+            <div class="form-inline row">
+                <div class="col-xs-1  col-sm-1 col-md-1 col-lg-1"> </div>
+                <div class="form-group col-xs-4  col-sm- col-md-4 col-lg-4">
+                    <label> Name </label>
+                </div>
+                <div class="col-xs-2  col-sm-2 col-md-2 col-lg-2"> </div>
+                <div class="form-group col-xs-4  col-sm-4 col-md-4 col-lg-4">
+                    <label> Money </label>
+                </div>
+                <div class="col-xs-1  col-sm-1 col-md-1 col-lg-1"> </div>
+            </div>
+
+
+            <div class="form-inline row pre-scrollable" data-bind="foreach: forms" id="input-rows">
+                <div class="clonable">
+                    <div class="clonable-inner">
+
+                        <div class="form-group namePayment col-xs-5  col-sm-5 col-md-5 col-lg-5 ">
+                            <div class="col-xs-10 cols-sm-10">
+                                <div class="input-group ">
+                                    <span class="input-group-addon"><i class="fa fa-align-justify fa" aria-hidden="true"></i></span>
+                                    <input type="text" class="form-control" id="name-1" data-bind="value: paymentName" placeholder="Enter  name of payment" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-1  col-sm-1 col-md-1 col-lg-1"> </div>
+                        <div class="form-group moneyPayment col-xs-5  col-sm-5 col-md-5 col-lg-5">
+                            <div class="col-xs-10 cols-sm-10">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="money-1" data-bind="value: paymentMoney" placeholder="Enter payment sum" />
+                                    <span class="input-group-addon"><i class="fa fa-usd fa" aria-hidden="true"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="delete-row" data-bind="click: $root.removeRow" class="btn col-xs-1  col-sm-1 col-md-1 col-lg-1"> <span class="glyphicon glyphicon-remove"> </span> </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group ">
+                <button type="button" id="add-form" class="btn btn-primary btn-lg center-block" data-bind="click: addRow, enable: forms().length < 9">Add form</button>
+            </div>
+
+            <div class="form-inline row">
+                <!--<button type="button" id="add-form" class="btn btn-primary btn-lg center-block">Add form</button>-->
+                <div class="col-xs-7 col-sm-7 col-md-7 col-lg-7"> </div>
+                <div class="form-group col-xs-5  col-sm-5 col-md-5 col-lg-5">
+                    <div class="input-group ">
+                        <input type="text" class="form-control" data-bind="value: summa()" id="summa" placeholder="summ" disabled />
+                        <span class="input-group-addon"><i class="fa fa-usd fa" aria-hidden="true"></i></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.4.1/knockout-min.js"></script>
+
+
+    <div class="container-fluid col-lg-5">
+
+        <canvas id="myChart" width="400" height="400" data-bind="text: seeResult()"></canvas>
+
+        <div id="chartLegend">
+            <ul data-bind="foreach: forms">
+                <li>
+                    <p> payment <span data-bind="text: paymentName"> </span> was <span data-bind="text: paymentMoney"> </span> </p>
+                </li>
+            </ul>
+            <h3> All money is <span data-bind="text: summa()"> </span></h3>
+        </div>
+
+    </div>
+
+
+    </div>
+
+
+
+    <script type="text/javascript">
+        var data;
+
+        function AppViewModel() {
+            var self = this;
+            self.paymentName = ko.observable('');
+            self.paymentMoney = ko.observable();
+            self.personValidateName = ko.computed(function() {
+                return self.paymentName() ? Boolean(self.paymentName().match(/^[a-zA-Z]{1,}$/)) : false;
+            });
+            self.personValidateAge = ko.computed(function() {
+                return self.paymentMoney() ? Boolean(self.paymentMoney().match(/^\d{1,}$/)) : false;
+            })
+        };
+
+        function ReservationsViewModel() {
+            var self = this;
+
+
+            // Editable data
+            self.forms = ko.observableArray([
+                new AppViewModel()
+            ]);
+
+            // Operations
+            self.addRow = function() {
+                self.forms.push(new AppViewModel());
+            }
+
+            self.summa = ko.computed(function() {
+                var summ = 0;
+                var moneyArray = self.forms();
+                var tempMoneyVal = 0;
+                for (var i = 0; i < moneyArray.length; i++) {
+                    tempMoneyVal = (isNaN(parseInt(moneyArray[i].paymentMoney()))) ? 0 : parseInt(moneyArray[i].paymentMoney());
+                    summ += tempMoneyVal;
+                }
+                return summ;
+            });
+
+            self.removeRow = function(form) {
+                self.forms.remove(form)
+            }
+
+
+            self.seeResult = ko.computed(function() {
+
+                var filteredArray = _.filter(self.forms(), (arrayElement) => {
+                    if (arrayElement.personValidateName() && arrayElement.personValidateAge()) {
+                        return arrayElement;
+                    }
+                });
+
+                if (filteredArray.length === 0) {
+                    filteredArray[0] = new AppViewModel();
+                }
+
+
+                var filteredArrayNames = () => {
+                    if (!(filteredArray.length === 0)) {
+                        return filteredArray;
+                    } else {
+                        return _.map(filteredArray, (arrayElement) => {
+                            return arrayElement.paymentName()
+                        });
+                    }
+                }
+
+                var filteredArrayMoney = () => {
+                    if (!(filteredArray.length === 0)) {
+                        return filteredArray;
+                    } else {
+                        return _.map(filteredArray, (arrayElement) => {
+                            return arrayElement.paymentMoney()
+                        });
+                    }
+                }
+
+                console.log('filter name right  ' + filteredArrayNames()[0].paymentName());
+
+                data = {
+                    labels: _.map(filteredArrayNames(), (arrayElement) => {
+                        return arrayElement.paymentName()
+                    }),
+                    datasets: [{
+                        data: _.map(filteredArrayMoney(), (arrayElement) => {
+                            return arrayElement.paymentMoney()
+                        }),
+                        backgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#ff9999',
+                            '#4286f4',
+                            '#bc42f4',
+                            '#f442dc',
+                            '#d31547'
+                        ],
+                        hoverBackgroundColor: [
+                            '#FF6384',
+                            '#36A2EB',
+                            '#FFCE56',
+                            '#ff9999',
+                            '#4286f4',
+                            '#bc42f4',
+                            '#f442dc',
+                            '#d31547'
+                        ]
+                    }]
+                };
+
+                var ctx = $("#myChart");
+                var myChart = new Chart(ctx, {
+
+                    type: 'pie',
+                    data: data
+                });
+
+            });
+        }
+
+
+        var koObj = new ReservationsViewModel();
+        ko.applyBindings(koObj);
+
+        $(document).on('keyup', '.namePayment input', function(event) {
+            validateName(event);
+        });
+
+        $(document).on('keyup', '.moneyPayment input', function(event) {
+            validateMoney(event);
+        });
+
+
+        function validateName(element) {
+
+            var arg1 = $(element.target).val();
+            var parentInput = $(element.target).parent();
+
+            if (arg1.match(/^[a-zA-Z]{1,}$/)) {
+                parentInput.removeClass('has-error').addClass('has-success');
+            } else {
+                parentInput.removeClass('has-success').addClass('has-error');
+            }
+        }
+
+
+        function validateMoney(element) {
+            var elementFull = $(element.target);
+            var arg1 = elementFull.val();
+            var parentInput = $(element.target).parent();
+
+            if (arg1.match(/^\d{1,}$/)) {
+                parentInput.removeClass('has-error').addClass('has-success');
+                elementFull.attr("data-bind: 'paymentMoney' ")
+            } else {
+                parentInput.removeClass('has-success').addClass('has-error');
+                elementFull.removeAttr("data-bind");
+            }
+        }
+    </script>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+</body>
+
+</html>
